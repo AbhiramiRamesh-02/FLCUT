@@ -1,0 +1,38 @@
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Link {
+  id           String    @id @default(uuid())
+  url          String
+  shortCode    String    @unique
+  alias        String?   @unique
+  createdAt    DateTime  @default(now())
+  goLiveAt     DateTime?
+  expiresAt    DateTime?
+  clickLimit   Int?
+  clicks       Click[]
+}
+
+model Click {
+  id        String   @id @default(uuid())
+  linkId    String
+  link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  timestamp DateTime @default(now())
+  isUnique  Boolean
+  hash      String   // SHA-256 of IP + UserAgent for uniqueness check
+  userAgent String?
+  device    String?  // Desktop, Mobile, Tablet, Bot
+  browser   String?
+  os         String?
+  referrer   String?
+  location  String?  // Rough location from header (e.g. Country/Region)
+}
